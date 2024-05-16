@@ -1,41 +1,53 @@
-import { useState, useEffect } from "react";
-import { Player } from "textalive-app-api";
+import { useState, useEffect, useMemo } from "react";
+import { Player, PlayerListener } from "textalive-app-api";
 import "./App.css";
 
 function App() {
-  const [currentLyric] = useState<{ text: string | null }>({ text: null });
-  const player = new Player({
-    app: {
-      token: "1qZhyX3989MTUw4H",
-    },
-  });
+  const [currentLyric, setCurrentLyric] = useState<string>("");
+  const [player, setPlayer] = useState<Player | null>(null);
+  const [mediaElement, setMediaElement] = useState<HTMLDivElement | null>(null);
+  const media = useMemo(
+    () => <div className="media" ref={setMediaElement} />,
+    []
+  );
 
   useEffect(() => {
-    player.addListener({
+    if (typeof window === "undefined" || !mediaElement) {
+      return;
+    }
+    const p = new Player({
+      app: {
+        token: "1qZhyX3989MTUw4H",
+      },
+      mediaElement,
+    });
+    const playerListener: PlayerListener = {
       onAppReady: (app) => {
         if (app.songUrl) {
           //ホストあり
         } else {
-          player.createFromSongUrl("https://piapro.jp/t/hZ35/20240130103028");
+          p.createFromSongUrl("http://piapro.jp/t/C0lr/20180328201242");
         }
       },
       onVideoReady: () => {
-        const phrase = player?.video.firstPhrase;
-        let lastPhraseStartTime: number;
-
-        while (phrase) {
-          phrase.animate = (now, unit) => {
-            if (unit.contains(now)) {
-              if (lastPhraseStartTime !== unit.startTime) {
-                lastPhraseStartTime = unit.startTime;
-                currentLyric.text = unit.text;
-              }
+        let c = p.video.firstChar;
+        while (c && c.next) {
+          c.animate = (now, u) => {
+            if (u.startTime <= now && u.endTime > now) {
+              setCurrentLyric(u.text);
             }
           };
+          c = c.next;
         }
       },
-    });
-  });
+    };
+    p.addListener(playerListener);
+    setPlayer(p);
+    return () => {
+      p.removeListener(playerListener);
+      p.dispose();
+    };
+  }, [mediaElement]);
   const handlePlayClick = () => {
     if (player) {
       player.requestPlay();
@@ -48,16 +60,15 @@ function App() {
         <header className="App-header">
           <h1>Lyric Display App</h1>
           <div className="Lyric-container">
-            {currentLyric && <p>{currentLyric.text}</p>}
+            <div>
+              {" "}
+              {media}
+              {currentLyric}
+            </div>
           </div>
           <div>
             <button onClick={handlePlayClick}>再生</button>
           </div>
-          <video
-            id="media"
-            controls
-            style={{ width: "100%", maxWidth: "640px" }}
-          ></video>
         </header>
       </div>
     </>
