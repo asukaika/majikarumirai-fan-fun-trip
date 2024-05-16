@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Player, PlayerListener } from "textalive-app-api";
+import { Stage, Container, Text } from "@pixi/react";
+import * as PIXI from "pixi.js";
 import "./App.css";
 
 function App() {
@@ -10,6 +12,8 @@ function App() {
     () => <div className="media" ref={setMediaElement} />,
     []
   );
+  const [x, setX] = useState(0);
+  const [direction, setDirection] = useState(1);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mediaElement) {
@@ -26,7 +30,7 @@ function App() {
         if (app.songUrl) {
           //ホストあり
         } else {
-          p.createFromSongUrl("https://piapro.jp/t/XiaI/20240201203346");
+          p.createFromSongUrl("http://www.youtube.com/watch?v=XSLhsjepelI");
         }
       },
       onVideoReady: () => {
@@ -54,6 +58,27 @@ function App() {
       p.dispose();
     };
   }, [mediaElement]);
+
+  useEffect(() => {
+    const moveText = () => {
+      setX((prevX) => {
+        const newX = prevX + direction * 5;
+        if (newX > window.innerWidth - 100 || newX < 0) {
+          setDirection(-direction);
+        }
+        return newX;
+      });
+    };
+
+    const ticker = new PIXI.Ticker();
+    ticker.add(moveText);
+    ticker.start();
+
+    return () => {
+      ticker.stop();
+      ticker.destroy();
+    };
+  }, [direction]);
   const handlePlayClick = () => {
     if (player) {
       player.requestPlay();
@@ -63,19 +88,13 @@ function App() {
   return (
     <>
       <div className="App">
-        <header className="App-header">
-          <h1>Lyric Display App</h1>
-          <div className="Lyric-container">
-            <div>
-              {" "}
-              {media}
-              {currentLyric}
-            </div>
-          </div>
-          <div>
-            <button onClick={handlePlayClick}>再生</button>
-          </div>
-        </header>
+        {media}
+        <Stage options={{ background: 0xffffff }}>
+          <Container x={x} y={330}>
+            <Text text={currentLyric} anchor={{ x: 0, y: 1 }} />
+          </Container>
+        </Stage>
+        <button onClick={handlePlayClick}>再生</button>
       </div>
     </>
   );
