@@ -26,15 +26,21 @@ function App() {
         if (app.songUrl) {
           //ホストあり
         } else {
-          p.createFromSongUrl("http://piapro.jp/t/C0lr/20180328201242");
+          p.createFromSongUrl("https://piapro.jp/t/XiaI/20240201203346");
         }
       },
       onVideoReady: () => {
         let c = p.video.firstChar;
+        let lastPhraseStartTime: number;
+        let charContainer: string = "";
         while (c && c.next) {
           c.animate = (now, u) => {
-            if (u.startTime <= now && u.endTime > now) {
-              setCurrentLyric(u.text);
+            if (u.contains(now)) {
+              if (lastPhraseStartTime !== u.startTime) {
+                lastPhraseStartTime = u.startTime;
+                charContainer = charContainer + u.text;
+                setCurrentLyric(charContainer);
+              }
             }
           };
           c = c.next;
