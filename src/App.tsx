@@ -12,7 +12,7 @@ function App() {
     () => <div className="media" ref={setMediaElement} />,
     []
   );
-  const [x, setX] = useState(800);
+  const [x, setX] = useState(400);
   const myRef = useRef<boolean>(true);
 
   useEffect(() => {
@@ -34,12 +34,12 @@ function App() {
         }
       },
       onVideoReady: () => {
-        // eslint-disable-next-line prefer-const
         let c = p?.video.firstChar;
         let lastPhraseStartTime: number;
 
         let charContainer: string = "";
         while (c) {
+          //実装へんこうすべき
           c.animate = (now, u) => {
             if (u.contains(now)) {
               if (lastPhraseStartTime !== u.startTime) {
@@ -49,8 +49,8 @@ function App() {
                 setCurrentLyric(charContainer);
                 console.log(1);
               }
-              if (u.next.startTime > u.startTime) {
-                console.log(2);
+              if (u.next.startTime > u.startTime + 5000) {
+                myRef.current = true;
               }
             }
           };
@@ -74,7 +74,7 @@ function App() {
           return prevX;
         }
 
-        const newX = prevX - 2;
+        const newX = prevX - 1;
         return newX;
       });
     };
