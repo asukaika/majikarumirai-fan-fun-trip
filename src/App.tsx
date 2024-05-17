@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Player, PlayerListener } from "textalive-app-api";
 import { Stage, Container, Text } from "@pixi/react";
 import * as PIXI from "pixi.js";
@@ -12,7 +12,8 @@ function App() {
     () => <div className="media" ref={setMediaElement} />,
     []
   );
-  const [x, setX] = useState(0);
+  const [x, setX] = useState(800);
+  const myRef = useRef<boolean>(true);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mediaElement) {
@@ -33,16 +34,23 @@ function App() {
         }
       },
       onVideoReady: () => {
-        let c = p.video.firstChar;
+        // eslint-disable-next-line prefer-const
+        let c = p?.video.firstChar;
         let lastPhraseStartTime: number;
+
         let charContainer: string = "";
-        while (c && c.next) {
+        while (c) {
           c.animate = (now, u) => {
             if (u.contains(now)) {
               if (lastPhraseStartTime !== u.startTime) {
+                myRef.current = false;
                 lastPhraseStartTime = u.startTime;
                 charContainer = charContainer + u.text;
                 setCurrentLyric(charContainer);
+                console.log(1);
+              }
+              if (u.next.startTime > u.startTime) {
+                console.log(2);
               }
             }
           };
@@ -52,6 +60,7 @@ function App() {
     };
     p.addListener(playerListener);
     setPlayer(p);
+
     return () => {
       p.removeListener(playerListener);
       p.dispose();
@@ -61,11 +70,11 @@ function App() {
   useEffect(() => {
     const moveText = () => {
       setX((prevX) => {
-        let newX = prevX - 5;
-        if (newX < -100) {
-          // テキストが画面外に完全に出たら（-100はテキストの幅を考慮したもの）
-          newX = window.innerWidth; // 画面の右端に戻す
+        if (myRef.current) {
+          return prevX;
         }
+
+        const newX = prevX - 2;
         return newX;
       });
     };
