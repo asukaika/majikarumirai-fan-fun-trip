@@ -13,7 +13,6 @@ function App() {
     []
   );
   const [x, setX] = useState(0);
-  const [direction, setDirection] = useState(1);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mediaElement) {
@@ -62,9 +61,10 @@ function App() {
   useEffect(() => {
     const moveText = () => {
       setX((prevX) => {
-        const newX = prevX + direction * 5;
-        if (newX > window.innerWidth - 100 || newX < 0) {
-          setDirection(-direction);
+        let newX = prevX - 5;
+        if (newX < -100) {
+          // テキストが画面外に完全に出たら（-100はテキストの幅を考慮したもの）
+          newX = window.innerWidth; // 画面の右端に戻す
         }
         return newX;
       });
@@ -78,7 +78,7 @@ function App() {
       ticker.stop();
       ticker.destroy();
     };
-  }, [direction]);
+  }, []);
   const handlePlayClick = () => {
     if (player) {
       player.requestPlay();
