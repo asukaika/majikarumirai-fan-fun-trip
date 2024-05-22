@@ -92,7 +92,7 @@ function App() {
       player.requestPlay();
     }
   };
-  const drawBox = useCallback((g) => {
+  const drawBox = useCallback((g: PIXI.Graphics) => {
     g.clear();
     g.beginFill(0xff0000); // 赤色で塗りつぶす
     g.drawRect(0, 0, 50, 50); // 幅50、高さ50の四角形を描画
