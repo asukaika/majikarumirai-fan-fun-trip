@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Player, PlayerListener } from "textalive-app-api";
-import { Stage, Container, Text } from "@pixi/react";
+import { Stage, Container, Text, Graphics } from "@pixi/react";
 import * as PIXI from "pixi.js";
 import "./App.css";
 
@@ -30,11 +30,11 @@ function App() {
         if (app.songUrl) {
           //ホストあり
         } else {
-          p.createFromSongUrl("http://www.youtube.com/watch?v=XSLhsjepelI");
+          p.createFromSongUrl("https://piapro.jp/t/RoPB/20220122172830");
         }
       },
       onVideoReady: () => {
-        let c = p?.video.firstChar;
+        let c = p.video.firstChar;
         let lastPhraseStartTime: number;
 
         let charContainer: string = "";
@@ -47,7 +47,6 @@ function App() {
                 lastPhraseStartTime = u.startTime;
                 charContainer = charContainer + u.text;
                 setCurrentLyric(charContainer);
-                console.log(1);
               }
               if (u.next.startTime > u.startTime + 5000) {
                 myRef.current = true;
@@ -74,7 +73,7 @@ function App() {
           return prevX;
         }
 
-        const newX = prevX - 1;
+        const newX = prevX - 0.6;
         return newX;
       });
     };
@@ -93,13 +92,24 @@ function App() {
       player.requestPlay();
     }
   };
+  const drawBox = useCallback((g) => {
+    g.clear();
+    g.beginFill(0xff0000); // 赤色で塗りつぶす
+    g.drawRect(0, 0, 50, 50); // 幅50、高さ50の四角形を描画
+    g.endFill();
+  }, []);
 
   return (
     <>
       <div className="App">
         {media}
-        <Stage options={{ background: 0xffffff }}>
-          <Container x={x} y={330}>
+        <Stage width={1200} height={675} options={{ background: 0xffffff }}>
+          <Graphics
+            draw={drawBox}
+            x={window.innerWidth / 2 - 25}
+            y={window.innerHeight / 2 - 25}
+          />
+          <Container x={x} y={650}>
             <Text text={currentLyric} anchor={{ x: 0, y: 1 }} />
           </Container>
         </Stage>
