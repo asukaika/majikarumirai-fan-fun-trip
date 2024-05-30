@@ -15,6 +15,50 @@ function App() {
   const [x, setX] = useState(400);
   const myRef = useRef<boolean>(true);
 
+  const [app] = useState(675);
+  const [y, setY] = useState(550);
+  const [jump, setJump] = useState(false);
+  const [jumpSpeed, setJumpSpeed] = useState(0);
+
+  const drawBox = useCallback((g: PIXI.Graphics) => {
+    g.clear();
+    g.beginFill(0x8ababb);
+    g.drawRect(0, 0, 50, 50); // 幅50、高さ50の四角形を描画
+    g.endFill();
+  }, []);
+
+  useEffect(() => {
+    const jumpBox = () => {
+      if (jump) {
+        setY((y) => y - jumpSpeed);
+        setJumpSpeed((jumpSpeed) => jumpSpeed - 1);
+        if (y > 550) {
+          setJump(false);
+          setJumpSpeed(0);
+          setY(550);
+        }
+      }
+    };
+
+    const handleClick = () => {
+      if (!jump) {
+        setJump(true);
+        setJumpSpeed(15);
+      }
+    };
+
+    window.addEventListener("click", handleClick);
+
+    const ticker = new PIXI.Ticker();
+    ticker.add(jumpBox);
+    ticker.start();
+
+    return () => {
+      ticker.remove(jumpBox);
+      window.removeEventListener("click", handleClick);
+    };
+  }, [jump, y, jumpSpeed, app]);
+
   useEffect(() => {
     if (typeof window === "undefined" || !mediaElement) {
       return;
@@ -39,13 +83,13 @@ function App() {
 
         let charContainer: string = "";
         while (c) {
-          //実装へんこうすべき
+          //実装へんこうすべき//setTime
           c.animate = (now, u) => {
             if (u.contains(now)) {
               if (lastPhraseStartTime !== u.startTime) {
                 myRef.current = false;
                 lastPhraseStartTime = u.startTime;
-                charContainer = charContainer + u.text;
+                charContainer += u.text;
                 setCurrentLyric(charContainer);
               }
               if (u.next.startTime > u.startTime + 5000) {
@@ -87,28 +131,19 @@ function App() {
       ticker.destroy();
     };
   }, []);
+
   const handlePlayClick = () => {
     if (player) {
       player.requestPlay();
     }
   };
-  const drawBox = useCallback((g: PIXI.Graphics) => {
-    g.clear();
-    g.beginFill(0xff0000); // 赤色で塗りつぶす
-    g.drawRect(0, 0, 50, 50); // 幅50、高さ50の四角形を描画
-    g.endFill();
-  }, []);
 
   return (
     <>
       <div className="App">
         {media}
-        <Stage width={1200} height={675} options={{ background: 0xffffff }}>
-          <Graphics
-            draw={drawBox}
-            x={window.innerWidth / 2 - 25}
-            y={window.innerHeight / 2 - 25}
-          />
+        <Stage width={1200} height={675} options={{ background: 0xb3e6ea }}>
+          <Graphics draw={drawBox} x={50} y={y} />
           <Container x={x} y={650}>
             <Text text={currentLyric} anchor={{ x: 0, y: 1 }} />
           </Container>
