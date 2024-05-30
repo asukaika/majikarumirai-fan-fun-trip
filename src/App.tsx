@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Player, PlayerListener } from "textalive-app-api";
-import { Stage, Container, Text, Graphics } from "@pixi/react";
+import { Stage, Text, Graphics } from "@pixi/react";
 import * as PIXI from "pixi.js";
 import "./App.css";
 
@@ -19,6 +19,23 @@ function App() {
   const [y, setY] = useState(550);
   const [jump, setJump] = useState(false);
   const [jumpSpeed, setJumpSpeed] = useState(0);
+
+  // const useIntervalBy1s = (callback: () => void) => {
+  //   const callbackRef = useRef<() => void>(callback);
+  //   useEffect(() => {
+  //     callbackRef.current = callback; // 新しいcallbackをrefに格納！
+  //   }, [callback]);
+
+  //   useEffect(() => {
+  //     const tick = () => {
+  //       callbackRef.current();
+  //     };
+  //     const id = setInterval(tick, 1000);
+  //     return () => {
+  //       clearInterval(id);
+  //     };
+  //   }, []); //refはミュータブルなので依存配列に含めなくてもよい
+  // };
 
   const drawBox = useCallback((g: PIXI.Graphics) => {
     g.clear();
@@ -74,7 +91,17 @@ function App() {
         if (app.songUrl) {
           //ホストあり
         } else {
-          p.createFromSongUrl("https://piapro.jp/t/RoPB/20220122172830");
+          p.createFromSongUrl("https://piapro.jp/t/hZ35/20240130103028", {
+            video: {
+              // 音楽地図訂正履歴
+              beatId: 4592293,
+              chordId: 2727635,
+              repetitiveSegmentId: 2824326,
+              // 歌詞タイミング訂正履歴: https://textalive.jp/lyrics/piapro.jp%2Ft%2FhZ35%2F20240130103028
+              lyricId: 59415,
+              lyricDiffId: 13962,
+            },
+          });
         }
       },
       onVideoReady: () => {
@@ -144,9 +171,8 @@ function App() {
         {media}
         <Stage width={1200} height={675} options={{ background: 0xb3e6ea }}>
           <Graphics draw={drawBox} x={50} y={y} />
-          <Container x={x} y={650}>
-            <Text text={currentLyric} anchor={{ x: 0, y: 1 }} />
-          </Container>
+
+          <Text text={currentLyric} x={x} y={650} anchor={{ x: 0, y: 1 }} />
         </Stage>
         <button onClick={handlePlayClick}>再生</button>
       </div>
