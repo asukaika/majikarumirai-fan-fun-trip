@@ -4,7 +4,7 @@ import { Stage, Text, Graphics } from "@pixi/react";
 import * as PIXI from "pixi.js";
 import "./App.css";
 
-function App() {
+export const App = () => {
   const [currentLyric, setCurrentLyric] = useState<string>("");
   const [player, setPlayer] = useState<Player | null>(null);
   const [mediaElement, setMediaElement] = useState<HTMLDivElement | null>(null);
@@ -178,6 +178,4 @@ function App() {
       </div>
     </>
   );
-}
-
-export default App;
+};
