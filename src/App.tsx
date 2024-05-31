@@ -13,8 +13,8 @@ export const App = () => {
     () => <div className="media" ref={setMediaElement} />,
     []
   );
-  const [myRef, setMyRef] = useState<boolean>(true);
-  // const myRef = useRef<boolean>(true);
+  const [lyricPlaying, setLyricPlaying] = useState<boolean>(true);
+  // const lyricPlaying = useRef<boolean>(true);
 
   // const useIntervalBy1s = (callback: () => void) => {
   //   const callbackRef = useRef<() => void>(callback);
@@ -83,13 +83,13 @@ export const App = () => {
           c.animate = (now, u) => {
             if (u.contains(now)) {
               if (lastPhraseStartTime !== u.startTime) {
-                setMyRef(false);
+                setLyricPlaying(false);
                 lastPhraseStartTime = u.startTime;
                 charContainer += u.text;
                 setCurrentLyric(charContainer);
               }
               if (u.next.startTime > u.startTime + 5000) {
-                setMyRef(true);
+                setLyricPlaying(true);
               }
             }
           };
@@ -116,7 +116,7 @@ export const App = () => {
     <>
       <div className="App">
         {media}
-        <GameCanvas currentLyric={currentLyric} myRef={myRef} />
+        <GameCanvas currentLyric={currentLyric} lyricPlaying={lyricPlaying} />
         <Button onClick={handlePlayClick} />
       </div>
     </>

@@ -4,7 +4,7 @@ import * as PIXI from "pixi.js";
 
 interface Props {
   currentLyric: string;
-  myRef: boolean;
+  lyricPlaying: boolean;
 }
 
 export const GameCanvas = (LyricState: Props) => {
@@ -57,7 +57,7 @@ export const GameCanvas = (LyricState: Props) => {
   useEffect(() => {
     const moveText = () => {
       setX((prevX) => {
-        if (LyricState.myRef) {
+        if (LyricState.lyricPlaying) {
           return prevX;
         }
 
@@ -74,7 +74,7 @@ export const GameCanvas = (LyricState: Props) => {
       ticker.stop();
       ticker.destroy();
     };
-  }, [LyricState.myRef]);
+  }, [LyricState.lyricPlaying]);
 
   return (
     <>
