@@ -73,13 +73,14 @@ export const App = () => {
           });
         }
       },
+      //この中に詰めない,処理が煩雑になる
       onVideoReady: () => {
         let c = p.video.firstChar;
         let lastPhraseStartTime: number;
 
         let charContainer: string = "";
         while (c) {
-          //実装へんこうすべき//setTime
+          //実装へんこうすべき//setTime or うまくreact hookで
           c.animate = (now, u) => {
             if (u.contains(now)) {
               if (lastPhraseStartTime !== u.startTime) {
