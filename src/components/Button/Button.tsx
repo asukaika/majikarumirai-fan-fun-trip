@@ -1,10 +1,13 @@
 interface Props {
   onClick(): void;
+  isVideoReady: boolean;
 }
-export const Button = ({ onClick }: Props) => {
+export const Button = ({ onClick, isVideoReady }: Props) => {
   return (
     <>
-      <button onClick={onClick}>再生</button>
+      <button disabled={isVideoReady} onClick={onClick}>
+        再生
+      </button>
     </>
   );
 };

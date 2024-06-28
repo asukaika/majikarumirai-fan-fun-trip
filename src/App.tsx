@@ -7,31 +7,15 @@ import { Button } from "./components/Button/Button";
 
 export const App = () => {
   const [currentLyric, setCurrentLyric] = useState<string>("");
+  const [position, setPosition] = useState(-1);
   const [player, setPlayer] = useState<Player | null>(null);
+  // const [isVideoReady, setIsVideoReady] = useState(false);
   const [mediaElement, setMediaElement] = useState<HTMLDivElement | null>(null);
   const media = useMemo(
     () => <div className="media" ref={setMediaElement} />,
     []
   );
-  const [lyricPlaying, setLyricPlaying] = useState<boolean>(true);
-  // const lyricPlaying = useRef<boolean>(true);
-
-  // const useIntervalBy1s = (callback: () => void) => {
-  //   const callbackRef = useRef<() => void>(callback);
-  //   useEffect(() => {
-  //     callbackRef.current = callback; // 新しいcallbackをrefに格納！
-  //   }, [callback]);
-
-  //   useEffect(() => {
-  //     const tick = () => {
-  //       callbackRef.current();
-  //     };
-  //     const id = setInterval(tick, 1000);
-  //     return () => {
-  //       clearInterval(id);
-  //     };
-  //   }, []); //refはミュータブルなので依存配列に含めなくてもよい
-  // };
+  // const [lyricPlaying, setLyricPlaying] = useState<boolean>(true);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mediaElement) {
@@ -73,29 +57,10 @@ export const App = () => {
           });
         }
       },
-      //この中に詰めない,処理が煩雑になる
-      onVideoReady: () => {
-        let c = p.video.firstChar;
-        let lastPhraseStartTime: number;
-
-        let charContainer: string = "";
-        while (c) {
-          //実装へんこうすべき//setTime or うまくreact hookで
-          c.animate = (now, u) => {
-            if (u.contains(now)) {
-              if (lastPhraseStartTime !== u.startTime) {
-                setLyricPlaying(false);
-                lastPhraseStartTime = u.startTime;
-                charContainer += u.text;
-                setCurrentLyric(charContainer);
-              }
-              if (u.next.startTime > u.startTime + 5000) {
-                setLyricPlaying(true);
-              }
-            }
-          };
-          c = c.next;
-        }
+      //この中に詰めない,
+      onVideoReady: () => {},
+      onTimeUpdate: (position) => {
+        setPosition(position);
       },
     };
     p.addListener(playerListener);
@@ -107,6 +72,10 @@ export const App = () => {
     };
   }, [mediaElement]);
 
+  useEffect(() => {
+    setCurrentLyric(player?.video.firstChar.text || "");
+  }, [position]);
+
   const handlePlayClick = () => {
     if (player) {
       player.requestPlay();
@@ -117,8 +86,8 @@ export const App = () => {
     <>
       <div className="App">
         {media}
-        <GameCanvas currentLyric={currentLyric} lyricPlaying={lyricPlaying} />
-        <Button onClick={handlePlayClick} />
+        <GameCanvas currentLyric={currentLyric} lyricPlaying={true} />
+        <Button isVideoReady={false} onClick={handlePlayClick} />
       </div>
     </>
   );

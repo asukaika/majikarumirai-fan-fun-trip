@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
-import { Stage, Text, Graphics } from "@pixi/react";
+import { useState, useEffect } from "react";
+import { Stage, Text, Sprite } from "@pixi/react";
 import * as PIXI from "pixi.js";
-
+import miku from "../../assets/miku_v1.png";
 interface Props {
   currentLyric: string;
   lyricPlaying: boolean;
@@ -14,13 +14,6 @@ export const GameCanvas = (LyricState: Props) => {
   const [y, setY] = useState(550);
   const [jump, setJump] = useState(false);
   const [jumpSpeed, setJumpSpeed] = useState(0);
-
-  const drawBox = useCallback((g: PIXI.Graphics) => {
-    g.clear();
-    g.beginFill(0x8ababb);
-    g.drawRect(0, 0, 50, 50); // 幅50、高さ50の四角形を描画
-    g.endFill();
-  }, []);
 
   useEffect(() => {
     const jumpBox = () => {
@@ -79,8 +72,7 @@ export const GameCanvas = (LyricState: Props) => {
   return (
     <>
       <Stage width={1200} height={675} options={{ background: 0xb3e6ea }}>
-        <Graphics draw={drawBox} x={50} y={y} />
-
+        <Sprite width={64} height={96} image={miku} x={50} y={y} />
         <Text
           text={LyricState.currentLyric}
           x={x}
